@@ -1,24 +1,31 @@
 package ru.geekbrains.java.level1.calculator;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+import javax.swing.WindowConstants;
+import javax.swing.JPanel;
 import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
 
 public class Calculator extends JFrame {
     private JTextField textField;
+    private static final String NOTDIGITTEXTBUTTONS = "+-*/=C.";
+    private static final String LASTBUTTONSROW = "=0C./";
+    private static final String SQRT = "√";
+    private static final String POWER = "^";
+
     public Calculator(){
         initMandatoryComponents();
         setTitle("Calculator");
         setBounds(0,0,300,500);
+
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         setLayout(new BorderLayout());
         add(initTopTextField(), BorderLayout.NORTH);
-        add(initBottom(), BorderLayout.CENTER);
-
-//        setLayout(new GridBagLayout());
-//        add(initTopTextField());
-//        add(initBottom());
+        add(initButtonsPanel(), BorderLayout.CENTER);
 
         setVisible(true);
     }
@@ -38,48 +45,43 @@ public class Calculator extends JFrame {
         return topTextField;
     }
 
-    private JPanel initBottom(){
-        JPanel bottom = new JPanel();
-        bottom.setLayout(new GridLayout(5, 4));
+    private JPanel initButtonsPanel() {
+        JPanel digitPanel = new JPanel();
+        digitPanel.setLayout(new GridLayout(5, 5));
 
-        ActionListener digitButtonListener = new DigitalButtonListener(textField);
-        ActionListener operatorsButtonListener =
-                new OperatorsButtonListener(textField);
+        ActionListener buttonListener = new ButtonListener(textField);
 
-        for (int i = 1; i <= 9; i++) {
-            JButton button = new JButton(String.valueOf(i));
-            button.addActionListener(digitButtonListener);
-            bottom.add(button);
+        for (int i = 0; i < 4; i++) {
+            JButton button;
+            for (int j = 0; j < 4; j++) {
+                if (i == 3) {
+                    //рисуем последнюю строку
+                    button = new JButton(
+                            Character.toString(LASTBUTTONSROW.charAt(j)));
+                } else {
+                    if (j < 3) {
+                        //рисуем цифры
+                        int value = (i * 3) + j + 1;
+                        button = new JButton(String.valueOf(value));
+                    } else {
+                        button = new JButton(
+                                Character.toString(NOTDIGITTEXTBUTTONS.charAt(i))
+                        );
+                    }
+                }
+                button.addActionListener(buttonListener);
+                digitPanel.add(button);
+            }
         }
-
-        JButton submit = new JButton("=");
-        JButton zero = new JButton("0");
-        JButton clear = new JButton("C");
-        JButton plus = new JButton("+");
-        JButton minus = new JButton("-");
-        JButton multiply = new JButton("*");
-
-        zero.addActionListener(digitButtonListener);
-        plus.addActionListener(operatorsButtonListener);
-        minus.addActionListener(operatorsButtonListener);
-        multiply.addActionListener(operatorsButtonListener);
-//        clear.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                textField.setText("");
-//            }
-//        }); // аналогичная короткая запись:
-        clear.addActionListener(e -> textField.setText(""));
-
-        submit.addActionListener(new CalculationListener(textField));
-
-        bottom.add(submit);
-        bottom.add(zero);
-        bottom.add(clear);
-        bottom.add(plus);
-        bottom.add(minus);
-        bottom.add(multiply);
-
-        return bottom;
+        JButton button = new JButton("/");
+        button.addActionListener(buttonListener);
+        digitPanel.add(button);
+        JButton buttonSqrt = new JButton(SQRT);
+        buttonSqrt.addActionListener(buttonListener);
+        digitPanel.add(buttonSqrt);
+        JButton buttonPower = new JButton(POWER);
+        buttonPower.addActionListener(buttonListener);
+        digitPanel.add(buttonPower);
+        return digitPanel;
     }
-
 }
